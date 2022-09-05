@@ -1,17 +1,16 @@
-# production
+# prod
 from datetime import datetime
-from multiprocessing import context
-
-from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-
 from points.models import ProfilePoint
 
+from django.contrib import messages
+from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+
 from .filters import PostFilter
+from .models import Kolejka, Post, Profile, Regulation, Vote, Ankieta, Result
 from .forms import (
     KolejkaForm,
     NewUserForm,
@@ -24,51 +23,12 @@ from .forms import (
     ResultForm,
     AnkietaForm,
 )
-from .models import Kolejka, Post, Profile, Regulation, Vote, Ankieta, Result
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.messages.views import SuccessMessageMixin
-from points.models import ProfilePoint
-
-
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)  # Important!
-            messages.success(
-                request, 'Twoje hasło zostało pomyślnie zmienione')
-            return redirect('confirm-change')
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'core/change_password.html', {
-        'form': form
-    })
-
-
-class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-    template_name = 'core/password/password_reset.html'
-    email_template_name = 'core/password/template-email.html'
-    subject_template_name = 'core/password/password_reset_subject.txt'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
-    success_url = reverse_lazy('confirm-change')
 
 
 def deleteResult(request, pk):
     result = Result.objects.get(id=pk)
     if request.method == "POST":
         if result.user == request.user:
-            print(result.ankieta.title)
             result.delete()
             return redirect("ankieta")
         else:
@@ -89,8 +49,9 @@ def editAnkieta(request, pk):
     if request.method == "POST":
         form = ResultForm(request.POST)
         if form.is_valid():
-            form.instance.user = request.user
+            form.instance.author = request.user
             form.instance.ankieta = ankieta
+            print(form.author)
             form.save()
             return redirect("ankieta")
     return render(
@@ -242,37 +203,21 @@ def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
-
             user = form.save()
             login(request, user)
+            messages.success(request, "Pomyślnie")
             Profile.objects.create(user=user)
-
             if not user:
                 raise form.ValidationError("User does not exist.")
-
             if not user.is_active:
                 raise form.ValidationError("User is no longer active.")
-
             return redirect("login")
-
-        else:
-            password1 = form.data['password1']
-            password2 = form.data['password2']
-            email = form.data['email']
-            username = form.data['username']
-            for msg in form.errors.as_data():
-                if msg == 'username':
-                    messages.error(
-                        request, f"Nazwa {username} jest zajęta lub błedna")
-                if msg == 'email':
-                    messages.error(request, f"Adres {email} jest niepoprawny")
-                if msg == 'password2' and password1 == password2:
-                    messages.error(
-                        request, f"Hasło: {password1} jest za słabe")
-                elif msg == 'password2' and password1 != password2:
-                    messages.error(
-                        request, f"Hasło: '{password1}' i: '{password2}' nie jest takie same!")
-
+        messages.error(
+            request,
+            """
+            Błędy w Formularzu!
+            """,
+        )
     form = NewUserForm()
     return render(
         request=request,
@@ -284,8 +229,8 @@ def register_request(request):
 @login_required(login_url="login")
 def allvote(request):
     User = get_user_model()
-    votes = Vote.objects.order_by('-post__created_on')
-    posts = Post.objects.all().order_by('-created_on')
+    votes = Vote.objects.order_by("author")
+    posts = Post.objects.all()
     users = User.objects.all()
 
     if request.method == "POST":
@@ -293,35 +238,10 @@ def allvote(request):
         kolor = request.POST.get("kolor")
         wynik = request.POST.get("wynik")
 
-        votes = Vote.objects.all()
+        votes = Vote.objects.order_by("author")
         votes_filter = votes.filter(post__body=kolejka)
         votes_filter.filter(name=wynik).update(color_vote=kolor)
-        kolejkaN = votes_filter.filter(name=wynik)
-
-        kolejkaN = votes_filter.filter(name=wynik)
-
-        for k in kolejkaN:
-            user = k
-            kolejka = k.post.kolejka
-            kolejka2 = kolejka.replace(" ", "")
-            my_variable = kolejka2.lower()
-
-            color = k.color_vote
-            point = ProfilePoint.objects.get(user__username=user)
-
-            if color == 'Zółty':
-                point_end = getattr(point, my_variable) + 1
-                ProfilePoint.objects.filter(user__username=user).update(
-                    **{my_variable: point_end})
-            elif color == 'Czerwony':
-                point_end = getattr(point, my_variable) - 1
-                ProfilePoint.objects.filter(user__username=user).update(
-                    **{my_variable: point_end})
-            elif color == 'Zielony':
-                point_end = getattr(point, my_variable) + 3
-                ProfilePoint.objects.filter(user__username=user).update(
-                    **{my_variable: point_end})
-
+        print(votes_filter)
         return redirect("allvote")
 
     context = {
@@ -339,43 +259,7 @@ def editVote(request, pk):
     form = VoteColorForm(instance=votes)
     if request.method == "POST":
         form = VoteColorForm(request.POST, instance=votes)
-
         if form.is_valid():
-            color = request.POST.get('color_vote')
-
-            if color == "Zółty":
-                author = votes.author
-                obj = ProfilePoint.objects.get(user__username=author)
-                kolejka = votes.post.kolejka
-                kolejka2 = kolejka.replace(" ", "")
-                kolejka3 = kolejka2.lower()
-                point_end = getattr(obj, kolejka3) + 1
-                print(point_end)
-                ProfilePoint.objects.filter(
-                    user__username=author).update(**{kolejka3: point_end})
-
-            if color == "Czerwony":
-                author = votes.author
-                obj = ProfilePoint.objects.get(user__username=author)
-                kolejka = votes.post.kolejka
-                kolejka2 = kolejka.replace(" ", "")
-                kolejka3 = kolejka2.lower()
-                point_end = getattr(obj, kolejka3) - 1
-                print(point_end)
-                ProfilePoint.objects.filter(
-                    user__username=author).update(**{kolejka3: point_end})
-
-            if color == "Zielony":
-                author = votes.author
-                obj = ProfilePoint.objects.get(user__username=author)
-                kolejka = votes.post.kolejka
-                kolejka2 = kolejka.replace(" ", "")
-                kolejka3 = kolejka2.lower()
-                point_end = getattr(obj, kolejka3) + 3
-                print(point_end)
-                ProfilePoint.objects.filter(
-                    user__username=author).update(**{kolejka3: point_end})
-
             form.save()
             return redirect("allvote")
     return render(
@@ -391,7 +275,7 @@ def editVote(request, pk):
 @staff_member_required(login_url="login")
 def alluser(request):
     User = get_user_model()
-    users = User.objects.order_by("username").exclude(username='admin')
+    users = User.objects.order_by("username").exclude(username="admin")
     context = {
         "users": users,
     }
@@ -441,7 +325,7 @@ def addvote(request, pk):
             form.instance.author = request.user
             form.instance.post = post
             if form.instance.post.created_on.strftime(
-                    "Y-m-d H:i:s"
+                "Y-m-d H:i:s"
             ) >= timezone.now().strftime("Y-m-d H:i:s"):
                 form.save()
             else:
@@ -475,9 +359,9 @@ def postdetail(request):
 
     index = data.index(najwieksza)
     # nameOfBest = labels.user.username[index]
-    nameBest = (labels[index])
+    nameBest = labels[index]
+
     post = Post.objects.order_by("-created_on")
-    # post_count = Vote.objects.filter(post=post)
     User = get_user_model()
     users = User.objects.all()
     myFilter = PostFilter(request.GET, queryset=post)
@@ -489,8 +373,7 @@ def postdetail(request):
         "count": Post.objects.count(),
         "myFilter": myFilter,
         "best_point": najwieksza,
-        'nameBest': nameBest,
-        # 'post_count': post_count,
+        "nameBest": nameBest,
     }
     return render(request, "core/dash.html", context)
 
@@ -535,7 +418,3 @@ def deletevote(request, *args, **kwargs):
             "vote": vote,
         },
     )
-
-
-def confirm_change(request):
-    return render(request, 'core/confirm_change_password.html')
