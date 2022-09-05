@@ -197,6 +197,7 @@ def addkolejka(request):
     return render(request, "core/add-kolejka.html", {"form": form})
 
 
+
 @login_required(login_url="login")
 def kolejka(request):
     User = get_user_model()
