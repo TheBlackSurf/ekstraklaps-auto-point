@@ -1,24 +1,11 @@
 from django.urls import path
-
 from . import views
-from core.views import showAnkieta, editAnkieta, deleteResult, ResetPasswordView,change_password,confirm_change
-from django.contrib.auth import views as auth_views
-
+from core.views import showAnkieta, editAnkieta, deleteResult
 
 urlpatterns = [
-    path("zmien-haslo/", change_password, name='change_password'),
-    path("confirm-change-password/", confirm_change, name='confirm-change'),
-
-    path('password-reset-complete/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='core/password/password_reset_complete.html'),
-         name='password_reset_complete'),
-    path('password-reset-confirm/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(template_name='core/password/password_reset_confirm.html'),
-         name='password_reset_confirm'),
-    path('password-reset/', ResetPasswordView.as_view(), name='password_reset'),
-    path('ankieta/<int:pk>', editAnkieta, name='edit-ankieta'),
-    path('delete-result/<int:pk>', deleteResult, name='delete-result'),
-    path('ankieta/', showAnkieta, name='ankieta'),
+    path("ankieta/<int:pk>", editAnkieta, name="edit-ankieta"),
+    path("delete-result/<int:pk>", deleteResult, name="delete-result"),
+    path("ankieta/", showAnkieta, name="ankieta"),
     path("addpost/", views.addpost, name="addpost"),
     path("addkolejka/", views.addkolejka, name="addkolejka"),
     path("deletepost/<int:pk>", views.deletepost, name="deletepost"),
@@ -38,5 +25,5 @@ urlpatterns = [
          views.deleteregulation, name="deleteregulation"),
     path("edytuj-regulamin/<int:pk>", views.editregulation, name="editregulation"),
     path("edit-vote/<int:pk>", views.editVote, name="edit-votes"),
-    path("edit-profile/<int:pk>", views.setting_profile, name='settings-profile'),
+    path("edit-profile/<int:pk>", views.setting_profile, name="settings-profile"),
 ]
