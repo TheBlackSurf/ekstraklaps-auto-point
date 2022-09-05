@@ -1,0 +1,28 @@
+{% extends 'core/main.html' %} {% block content %}
+
+{% if votes.author == request.user %}
+
+<div class='container mt-4'>
+    <h5 class="text-white ml-3">Aktualizuje Wynik:</h5>
+    <div class="container w-16 items-center">
+        <form action="" method="POST">
+            {% csrf_token %} {{form.name}}
+            <button class="btn btn-primary" type="submit">Aktualizuj</button>
+        </form>
+    </div>
+    <hr class="border-b-2 border-gray-600 my-8 mx-4">
+</div>
+</div>
+{% else %}
+
+<div class="container">
+    <h1 style="color:orangered;">Nie masz dostępu do tej strony!</h1>
+    <p style="color:white;">Zrób to jeszcze raz i dostaniesz bana, a twoje zasoby zostaną usunięte :)</p>
+</div>
+</div>
+
+
+
+
+{% endif %}
+{% endblock content %}

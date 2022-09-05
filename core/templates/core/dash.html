@@ -1,0 +1,110 @@
+{% extends 'core/main.html' %}
+
+{% block content %}
+
+    <div class=" w-full mx-auto ">
+        <div class="w-full px-4 md:px-0 md:-8 mb-16 text-gray-800 leading-normal">
+            <div style="text-align:center;" class="flex flex-wrap -24">
+                <h6 class="text-sm" style="color:white; text-align:center;"><b>Ostatnie Logowanie
+                    Admina: {{ users.0.last_login|date:'Y-m-d H:i:s' }}</b></h6>
+                <canvas id="bar-chart" width="800" height="100"></canvas>
+                <form class='m-2' action="" method='GET'>
+                    {{ myFilter.form.kolejka }}
+                    <button class='text-white btn-dark' type="submit">Filtruj</button>
+                </form>
+                <input id="search"
+                       class="form-control form-control-lg" type="text" placeholder="Wyszukaj...">
+
+                <table id="myTable" style="background-color: #111827;" class="table table-dark ">
+                    <thead>
+                    <tr>
+                        <th scope="col">Kolejka</th>
+                        <th scope="col">Koniec Obstawiania</th>
+                        <th scope="col">Wydarzenie</th>
+                        <th scope="col">Głosowało</th>
+                        <th scope="col">Wynik</th>
+                        <th scope="col">Dodaj/Edytuj</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for post in post %}
+                        <tr>
+                            <td scope="row">{{ post.kolejka }}</td>
+                            <td scope="row">{{ post.created_on|date:"Y-m-d H:i:s" }}</td>
+                            <td><a href="">{{ post.body }}</a></td>
+                            <td scope="row">
+
+                                <a
+                                        data-toggle="popover"
+                                        title="Głosowali"
+
+                                        data-content="{% for v in post.vote_set.all %} {{ v.author }} {% endfor %}">{{ post.vote_set.all.count }} </a>
+
+                            </td>
+                            <script>
+                                $(document).ready(function () {
+                                    $('[data-toggle="popover"]').popover();
+                                });
+                            </script>
+
+                            <td>
+                                {% for v in post.vote_set.all %} {% if v.author == request.user %} {{ v.name }}
+                                    {% if v.post.created_on|date:'Y-m-d H:i:s' >= today|date:'Y-m-d H:i:s' %}
+                                        <a href="{% url 'edit-vote' v.id %}">Edytuj</a>
+                                        <a href="{% url 'deletevote' v.id %}">Usuń</a> {% endif %} {% endif %}
+                                {% endfor %}
+                            </td>
+
+                            {% if post.vote_set.name %} {% endif %}
+                            <td>
+                                {% if post.created_on|date:'Y-m-d H:i:s' >= today|date:'Y-m-d H:i:s' %}
+                                    <a name="" id="" class="btn btn-primary" href="{% url 'edit' post.id %}"
+                                       role="button">Dodaj Wynik</a> {% else %} koniec {% endif %}
+                                {% if user.is_superuser %}
+                                    <a name="" id="" class="btn btn-primary" href="{% url 'deletepost' post.id %}"
+                                       role="button">Usuń</a> {% endif %}
+
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!--Divider-->
+        <hr class="border-b-2 border-gray-600 my-8 mx-4">
+    </div>
+    </div>
+    <script>
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+                labels: ["Wszystkie Wydarzenia", "Zarejestrowani Użytkownicy", "Największa Liczba punktów : {{nameBest}}"],
+                datasets: [
+                    {
+                        label: "Ilość",
+                        backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                        data: [{{count}}, {{users.count}}, {{best_point}},]
+                    }
+                ]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: 'Statystyka Strony'
+                }
+            }
+        });
+
+    </script>
+    <script>
+        $('.popover-dismiss').popover({
+            trigger: 'focus'
+        })
+
+    </script>
+{% endblock content %}

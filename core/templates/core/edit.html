@@ -1,0 +1,14 @@
+{% extends 'core/main.html' %} {% block content %}
+<div class="container w-16 mt-4 items-center">
+    <h4 class='text-white'>Wprowadź Wynik</h4>
+    <form class="" action="" method="POST">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+
+            {{form.name}}
+
+        </div>
+        <button class="btn btn-primary" type="submit">wyślij</button>
+    </form>
+</div>
+{% endblock content %}

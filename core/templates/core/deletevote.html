@@ -1,0 +1,31 @@
+{% extends 'core/main.html' %}
+
+
+{% block content %}
+
+{% if vote.author == request.user %}
+
+
+<div class="container w-full mx-auto">
+
+    <h5 class="text-white ml-3">Czy na pewno chcesz usunąć ten wynik?:</h5>
+    <div class="container w-16 items-center">
+        <form class="" action="" method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+            </div>
+            <button class="btn btn-primary" type="submit">Usuń</button>
+        </form>
+    </div>
+    <hr class="border-b-2 border-gray-600 my-8 mx-4">
+</div>
+</div>
+{% else %}
+
+        <div class="container">
+        <h1 style="color:orangered;">Nie masz dostępu do tej strony!</h1>
+        <p style="color:white;">Zrób to jeszcze raz i dostaniesz bana, a twoje zasoby zostaną usunięte :)</p>
+        </div>
+
+{% endif %}
+{% endblock content %}

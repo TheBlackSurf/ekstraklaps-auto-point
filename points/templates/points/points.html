@@ -1,0 +1,280 @@
+{% extends 'core/main.html' %} {% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <br/>
+    <style>
+        .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_info {
+            display: none;
+
+        }
+
+        .dataTables_paginate {
+            display: none;
+        }
+
+        .dataTables_length {
+            display: none;
+        }
+    </style>
+    <div class="table-responsive">
+
+        <table id="VendasHistoryTable" style="background-color: #111827;"
+               class="table table-sm  order-table result-point ">
+            <thead>
+            <tr class="text-white text-center">
+                <div class="">
+                    <canvas id="bar-chart" width="600" height="100"></canvas>
+                    <input type="text" class="form-control form-control-lg table-filter" data-table="order-table"
+                           placeholder="Wyszukaj..."/>
+                </div>
+
+                {% if user.is_superuser %}
+                    <th>Edytuj</th>
+                {% endif %}
+                <th>M</th>
+                <th>Użytkownik</th>
+                <th>P</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+                <th>6</th>
+                <th>7</th>
+                <th>8</th>
+                <th>9</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+                <th>14</th>
+                <th>15</th>
+                <th>16</th>
+                <th>17</th>
+                <th>18</th>
+                <th>19</th>
+                <th>20</th>
+                <th>21</th>
+                <th>22</th>
+                <th>23</th>
+                <th>24</th>
+                <th>25</th>
+                <th>26</th>
+                <th>27</th>
+                <th>28</th>
+                <th>29</th>
+                <th>30</th>
+                <th>31</th>
+                <th>32</th>
+                <th>33</th>
+                <th>34</th>
+                <th>D</th>
+
+                {% comment %}
+        <th>date</th>
+        {% endcomment %}
+            </tr>
+            </thead>
+
+            {% for k in points %}
+
+
+                <tr class="text-white text-center">
+                    {% if user.is_superuser %}
+                        <th><a href="{% url 'editpoints' k.id %}">Edytuj</a></th>
+                    {% endif %}
+                    <td></td>
+                    <td>{{ k.user }}</td>
+                    {% if k.color == 'Zółty' %}
+                        <td><b style="color: yellow;">{{ k.gross }}</b></td>
+                    {% elif k.color == 'Pomarańczowy' %}
+                        <td><b style="color: orangered;">{{ k.gross }}</b></td>
+                    {% elif k.color == 'Czerwony' %}
+                        <td><b style="color: red;">{{ k.gross }}</b></td>
+                    {% elif k.color == 'Zielony' %}
+                        <td><b style="color: green;">{{ k.gross }}</b></td>
+                    {% else %}
+                        <td><b>{{ k.gross }}</b></td>
+                    {% endif %}
+
+                    <td>{{ k.kolejka1 }}</td>
+                    <td>{{ k.kolejka2 }}</td>
+                    <td>{{ k.kolejka3 }}</td>
+                    <td>{{ k.kolejka4 }}</td>
+                    <td>{{ k.kolejka5 }}</td>
+                    <td>{{ k.kolejka6 }}</td>
+                    <td>{{ k.kolejka7 }}</td>
+                    <td>{{ k.kolejka8 }}</td>
+                    <td>{{ k.kolejka9 }}</td>
+                    <td>{{ k.kolejka10 }}</td>
+                    <td>{{ k.kolejka11 }}</td>
+                    <td>{{ k.kolejka12 }}</td>
+                    <td>{{ k.kolejka13 }}</td>
+                    <td>{{ k.kolejka14 }}</td>
+                    <td>{{ k.kolejka15 }}</td>
+                    <td>{{ k.kolejka16 }}</td>
+                    <td>{{ k.kolejka17 }}</td>
+                    <td>{{ k.kolejka18 }}</td>
+                    <td>{{ k.kolejka19 }}</td>
+                    <td>{{ k.kolejka20 }}</td>
+                    <td>{{ k.kolejka21 }}</td>
+                    <td>{{ k.kolejka22 }}</td>
+                    <td>{{ k.kolejka23 }}</td>
+                    <td>{{ k.kolejka24 }}</td>
+                    <td>{{ k.kolejka25 }}</td>
+                    <td>{{ k.kolejka26 }}</td>
+                    <td>{{ k.kolejka27 }}</td>
+                    <td>{{ k.kolejka28 }}</td>
+                    <td>{{ k.kolejka29 }}</td>
+                    <td>{{ k.kolejka30 }}</td>
+                    <td>{{ k.kolejka31 }}</td>
+                    <td>{{ k.kolejka32 }}</td>
+                    <td>{{ k.kolejka33 }}</td>
+                    <td>{{ k.kolejka34 }}</td>
+                    <td>{{ k.dodatkowepunkty }}</td>
+
+                    {% comment %}
+      <td>25/05/2020</td>
+      {% endcomment %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+                labels: {{labels|safe}},
+                datasets: [
+                    {
+                        label: "Punkty",
+                        backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850", "#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850", "#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850", "#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                        data: {{data|safe}}
+                    }
+                ]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: 'Wykres Punktów'
+                }
+            }
+        });
+    </script>
+    <script>
+        (function () {
+            "use strict";
+
+            var TableFilter = (function () {
+                var Arr = Array.prototype;
+                var input;
+
+                function onInputEvent(e) {
+                    input = e.target;
+                    var table1 = document.getElementsByClassName(
+                        input.getAttribute("data-table")
+                    );
+                    Arr.forEach.call(table1, function (table) {
+                        Arr.forEach.call(table.tBodies, function (tbody) {
+                            Arr.forEach.call(tbody.rows, filter);
+                            CalColumnHistDEPOSITO();
+                        });
+                    });
+                }
+
+                function filter(row) {
+                    var text = row.textContent.toLowerCase();
+                    //console.log(text);
+                    var val = input.value.toLowerCase();
+                    //console.log(val);
+                    row.style.display = text.indexOf(val) === -1 ? "none" : "table-row";
+                }
+
+                return {
+                    init: function () {
+                        var inputs = document.getElementsByClassName("table-filter");
+                        Arr.forEach.call(inputs, function (input) {
+                            input.oninput = onInputEvent;
+                        });
+                    },
+                };
+            })();
+
+
+            TableFilter.init();
+        })();
+
+        function CalColumnHistDEPOSITO() {
+            var table = document.getElementById("VendasHistoryTable");
+            // var table = document.querySelectorAll("#table1 tr td:first-child");
+            var sumVal = 0;
+            for (var i = 1; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                if (row.style.display == "table-row")
+                    sumVal = sumVal + parseFloat(row.cells[2].innerHTML);
+            }
+            document.getElementById("Tprice").innerHTML = sumVal;
+        }
+
+    </script>
+{% if user.is_superuser %}
+        <script>
+        $(document).ready(function () {
+            var t = $('#VendasHistoryTable').DataTable({
+                "pageLength": 1000,
+                columnDefs: [
+                    {
+                        searchable: false,
+                        orderable: false,
+                        targets: 0,
+
+                    },
+                ],
+                order: [[1, 'asc']],
+            });
+
+            t.on('order.dt search.dt', function () {
+                let i = 1;
+
+                t.cells(null, 1, {search: 'applied', order: 'applied'}).every(function (cell) {
+                    this.data(i++);
+                });
+            }).draw();
+        });
+    </script>
+    {% else %}
+        <script>
+        $(document).ready(function () {
+            var t = $('#VendasHistoryTable').DataTable({
+                "pageLength": 1000,
+                columnDefs: [
+                    {
+                        searchable: false,
+                        orderable: false,
+                        targets: 0,
+
+                    },
+                ],
+                order: [[2, 'dsc']],
+            });
+
+            t.on('order.dt search.dt', function () {
+                let i = 1;
+
+                t.cells(null, 0, {search: 'applied', order: 'applied'}).every(function (cell) {
+                    this.data(i++);
+                });
+            }).draw();
+        });
+    </script>
+
+{% endif %}
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+{% endblock content %}
+</section>

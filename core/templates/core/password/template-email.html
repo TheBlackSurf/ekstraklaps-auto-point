@@ -1,0 +1,12 @@
+
+{% autoescape off %}
+Zmiana hasła dla adresu email {{ user.email }}
+Kliknij poniższy link w celu zresetowania hasła.
+
+  {{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+Jeśli kliknięcie powyższego linku nie działa, skopiuj i wklej adres URL w nowej karcie
+
+Z poważaniem,
+Zespół EkstraKlaps
+{% endautoescape %}
