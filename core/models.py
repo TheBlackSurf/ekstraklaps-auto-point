@@ -5,6 +5,8 @@ from django.utils import timezone
 from datetime import datetime
 from points.models import ProfilePoint
 
+# Choices 
+
 COLOR = (
     ("Zółty", "Zółty"),
     ("Pomarańczowy", "Pomarańczowy"),
@@ -55,6 +57,7 @@ RESULT = (
     ("przeciw", "przeciw"),
 )
 
+# end Choices
 
 class Ankieta(models.Model):
     title = models.CharField(max_length=200)
